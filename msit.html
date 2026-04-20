@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>College Project Portal</title>
+<meta charset="UTF-8">
+
+<style>
+body {
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    color:white;
+    text-align:center;
+}
+
+.box {
+    background:white;
+    color:black;
+    width:360px;
+    padding:20px;
+    border-radius:10px;
+    margin:auto;
+    margin-top:30px;
+}
+
+input, select {
+    width:90%;
+    padding:10px;
+    margin:5px 0;
+}
+
+button {
+    padding:10px;
+    width:95%;
+    border:none;
+    background:#667eea;
+    color:white;
+    cursor:pointer;
+}
+
+.link {
+    color:blue;
+    cursor:pointer;
+    margin-top:10px;
+    display:block;
+}
+
+#dashboard {
+    display:none;
+}
+
+ul {
+    list-style:none;
+    padding:0;
+}
+
+li {
+    background:white;
+    color:black;
+    margin:10px auto;
+    padding:10px;
+    width:300px;
+    border-radius:5px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎓 DR MEGHNAD SAHA INSTITUTE OF TECHNOLOGY, Haldia</h2>
+
+<!-- REGISTER -->
+<div class="box" id="registerBox">
+    <h3>Create Account</h3>
+
+    <input type="text" id="name" placeholder="Student Name">
+    <input type="number" id="mobile" placeholder="Mobile No">
+    <input type="text" id="reg" placeholder="Registration No (Username)">
+    <input type="text" id="dept" placeholder="Department">
+
+    <select id="sem">
+        <option value="">Select Semester</option>
+        <option>1st</option><option>2nd</option><option>3rd</option>
+        <option>4th</option><option>5th</option><option>6th</option>
+        <option>7th</option><option>8th</option>
+    </select>
+
+    <input type="text" id="roll" placeholder="Roll No">
+    <input type="password" id="regPass" placeholder="Create Password">
+
+    <button onclick="register()">Create Account</button>
+
+    <span class="link" onclick="showLogin()">Already have account? Login</span>
+</div>
+
+<!-- LOGIN -->
+<div class="box" id="loginBox" style="display:none;">
+    <h3>Login</h3>
+
+    <input type="text" id="loginReg" placeholder="Registration No">
+    <input type="password" id="loginPass" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <span class="link" onclick="showRegister()">Create Account</span>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+    <h2>📂 Upload Projects</h2>
+
+    <input type="file" id="fileInput" accept=".html">
+
+    <h3>📋 Project List</h3>
+    <ul id="list"></ul>
+
+    <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+let projectFiles = {};
+
+// SWITCH UI
+function showLogin(){
+    registerBox.style.display="none";
+    loginBox.style.display="block";
+}
+
+function showRegister(){
+    registerBox.style.display="block";
+    loginBox.style.display="none";
+}
+
+// REGISTER
+function register(){
+    let user = {
+        name: name.value,
+        mobile: mobile.value,
+        reg: reg.value,
+        dept: dept.value,
+        sem: sem.value,
+        roll: roll.value,
+        pass: regPass.value
+    };
+
+    if(!user.name || !user.mobile || !user.reg || !user.pass){
+        alert("Please fill required fields!");
+        return;
+    }
+
+    localStorage.setItem("user_"+user.reg, JSON.stringify(user));
+
+    alert("✅ Account created successfully!");
+    showLogin();
+}
+
+// LOGIN
+function login(){
+    let regNo = loginReg.value;
+    let pass = loginPass.value;
+
+    let user = JSON.parse(localStorage.getItem("user_"+regNo));
+
+    if(user && user.pass === pass){
+        localStorage.setItem("currentUser", regNo);
+
+        registerBox.style.display="none";
+        loginBox.style.display="none";
+        dashboard.style.display="block";
+    } else {
+        alert("❌ Wrong credentials!");
+    }
+}
+
+// LOGOUT
+function logout(){
+    localStorage.removeItem("currentUser");
+    location.reload();
+}
+
+// UPLOAD → AUTO ADD TO LIST
+document.getElementById("fileInput").addEventListener("change", function(){
+    let file = this.files[0];
+
+    if(!file) return;
+
+    let url = URL.createObjectURL(file);
+
+    projectFiles[file.name] = url;
+
+    let li = document.createElement("li");
+    li.innerText = "📄 " + file.name;
+
+    li.onclick = function(){
+        window.open(url, "_blank");
+    };
+
+    document.getElementById("list").appendChild(li);
+});
+
+// AUTO LOGIN
+if(localStorage.getItem("currentUser")){
+    registerBox.style.display="none";
+    loginBox.style.display="none";
+    dashboard.style.display="block";
+}
+</script>
+
+</body>
+</html>
